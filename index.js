@@ -1,10 +1,74 @@
+require("dotenv").config();
+
 const puppeteer = require("puppeteer");
 
-(async () => {
-	const browser = await puppeteer.launch();
-	const page = await browser.newPage();
-	await page.goto("https://example.com");
-	await page.screenshot({ path: "example.png" });
+const delay = (ms) =>
+  new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
 
-	await browser.close();
+const login = async (page) => {
+  await page.goto("https://instacart.com");
+  const loginButtonSelector = "header button";
+  await page.waitFor(loginButtonSelector);
+  await page.click(loginButtonSelector);
+
+  const emailFieldSelector = "input[type=email]";
+  await page.waitFor(emailFieldSelector);
+  await page.type(emailFieldSelector, process.env.INSTACART_EMAIL);
+  const passwordFieldSelector = "input[type=password]";
+  await page.waitFor(passwordFieldSelector);
+  await page.type(passwordFieldSelector, process.env.INSTACART_PASSWORD);
+  const loginSubmitSelector =
+    "#main-content > div.rmq-766c96d2 > form > div:nth-child(7) > button";
+  await page.click(loginSubmitSelector);
+  await page.waitForNavigation();
+};
+
+const checkForDeliveries = async (page) => {
+  await page.goto("https://www.instacart.com/store/checkout_v3");
+  const deliveryOptionsSelector = "[id='Delivery options']";
+  await page.waitFor(deliveryOptionsSelector);
+  const optionsEl = await page.$(deliveryOptionsSelector);
+  const optionsElText = await (
+    await optionsEl.getProperty("textContent")
+  ).jsonValue();
+  const noDeliveries =
+    optionsElText.indexOf("No delivery times available") >= 0;
+  return !noDeliveries;
+};
+
+const say = (str) => require("child_process").execSync(`say ${str}`);
+
+(async () => {
+  const browser = await puppeteer.launch({ headless: false });
+  try {
+    const page = await browser.newPage();
+
+    await login(page);
+
+    let foundDelivery = false;
+    while (!foundDelivery) {
+      console.log("Checking for deliveries...");
+      try {
+        foundDelivery = await checkForDeliveries(page);
+        if (!foundDelivery) {
+          console.log("none found, waiting...");
+          await delay(60 * 1000);
+        }
+      } catch (e) {
+        console.error("Checking failed this time, waiting...", e);
+        await delay(60 * 1000);
+      }
+    }
+    while (true) {
+      say("Found a delivery time!");
+      await delay(5 * 1000);
+    }
+
+    // await browser.close();
+  } catch (e) {
+    console.error(e);
+    // await browser.close();
+  }
 })();
