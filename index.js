@@ -50,7 +50,7 @@ const checkForDeliveries = async (page) => {
 const say = (str) => require("child_process").execSync(`say ${str}`);
 
 (async () => {
-  const browser = await puppeteer.launch({ headless: false });
+  const browser = await puppeteer.launch({ headless: !(process.env.SLOWCART_HEADLESS === "false"), args: ['--no-sandbox', '--disable-setuid-sandbox'] });
   try {
     const page = await browser.newPage();
 
