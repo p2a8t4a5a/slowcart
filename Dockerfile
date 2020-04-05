@@ -30,4 +30,4 @@ COPY index.js index.js
 # Run everything after as non-privileged user.
 USER pptruser
 
-CMD node index.js
+CMD ["npm", "start"]
