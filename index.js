@@ -48,7 +48,8 @@ const say = (str) => require("child_process").execSync(`say ${str}`);
     await login(page);
 
     let foundDelivery = false;
-    while (!foundDelivery) {
+    let numExceptions = 0;
+    while (!foundDelivery && numExceptions < 3) {
       console.log("Checking for deliveries...");
       try {
         foundDelivery = await checkForDeliveries(page);
@@ -58,17 +59,24 @@ const say = (str) => require("child_process").execSync(`say ${str}`);
         }
       } catch (e) {
         console.error("Checking failed this time, waiting...", e);
-        await delay(60 * 1000);
+        numExceptions += 1;
+        if (numExceptions < 3) {
+          await delay(60 * 1000);
+        }
       }
     }
-    while (true) {
-      say("Found a delivery time!");
-      await delay(5 * 1000);
+    if (numExceptions < 3) {
+      while (true) {
+        say("Found a delivery time!");
+        await delay(5 * 1000);
+      }
+    } else {
+      await browser.close();
+      console.error("Failed with exceptions 3 times, exiting");
+      say("Failed with exceptions 3 times, exiting");
     }
-
-    // await browser.close();
   } catch (e) {
     console.error(e);
-    // await browser.close();
+    await browser.close();
   }
 })();
