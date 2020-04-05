@@ -1,5 +1,14 @@
 require("dotenv").config();
 
+const checkEnv = key => {
+	if (!process.env[key]) {
+		console.error(`${key} is required, but was not found.`);
+		process.exit(1);
+	}
+};
+checkEnv('INSTACART_EMAIL');
+checkEnv('INSTACART_PASSWORD');
+
 const puppeteer = require("puppeteer");
 
 const delay = (ms) =>
