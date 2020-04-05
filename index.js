@@ -103,7 +103,7 @@ const say = (str) => require("child_process").execSync(`say ${str}`);
     } else {
       await browser.close();
       console.error("Failed with exceptions 3 times, exiting");
-      say("Failed with exceptions 3 times, exiting");
+      sendSMS("Failed with exceptions 3 times, exiting");
     }
   } catch (e) {
     console.error(e);
