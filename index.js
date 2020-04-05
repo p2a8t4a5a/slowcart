@@ -1,4 +1,5 @@
 require("dotenv").config();
+const twilio = require("twilio");
 
 const checkEnv = key => {
 	if (!process.env[key]) {
@@ -8,6 +9,26 @@ const checkEnv = key => {
 };
 checkEnv('INSTACART_EMAIL');
 checkEnv('INSTACART_PASSWORD');
+
+let twilioClient;
+if (!process.env.TWILIO_ACCOUNT_SID || !process.env.TWILIO_AUTH_TOKEN || !process.env.TWILIO_FROM_NUMBER || !process.env.TWILIO_TO_NUMBER) {
+	console.info("No twilio config found, skipping SMS");
+} else {
+	twilioClient = new twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+}
+const sendSMS = body => {
+	if (!twilioClient) {
+		return;
+	}
+
+	// fire and forgetting here, this _does_ return a promise.
+	twilioClient.messages.create({
+		to: process.env.TWILIO_TO_NUMBER,
+		from: process.env.TWILIO_FROM_NUMBER,
+		body
+	});
+};
+
 
 const puppeteer = require("puppeteer");
 
@@ -64,6 +85,7 @@ const say = (str) => require("child_process").execSync(`say ${str}`);
         foundDelivery = await checkForDeliveries(page);
         if (!foundDelivery) {
           console.log("none found, waiting...");
+					sendSMS("Just checked, no deliveries found.");
           await delay(60 * 1000);
         }
       } catch (e) {
