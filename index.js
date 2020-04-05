@@ -85,7 +85,6 @@ const say = (str) => require("child_process").execSync(`say ${str}`);
         foundDelivery = await checkForDeliveries(page);
         if (!foundDelivery) {
           console.log("none found, waiting...");
-					sendSMS("Just checked, no deliveries found.");
           await delay(60 * 1000);
         }
       } catch (e) {
@@ -98,7 +97,7 @@ const say = (str) => require("child_process").execSync(`say ${str}`);
     }
     if (numExceptions < 3) {
       while (true) {
-        say("Found a delivery time!");
+        sendSMS("Found a delivery time!");
         await delay(5 * 1000);
       }
     } else {
