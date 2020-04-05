@@ -87,6 +87,7 @@ const say = (str) => require("child_process").execSync(`say ${str}`);
           console.log("none found, waiting...");
           await delay(60 * 1000);
         }
+				numExceptions = 0;
       } catch (e) {
         console.error("Checking failed this time, waiting...", e);
         numExceptions += 1;
