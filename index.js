@@ -74,19 +74,25 @@ const say = (str) => require("child_process").execSync(`say ${str}`);
 
 const checkUntilFoundOrFailed = async page => {
 	let foundDelivery = false;
+	let alerted = false;
 	let numExceptions = 0;
-	while (!foundDelivery && numExceptions < 3) {
+	while (numExceptions < 3) {
 		console.log("Checking for deliveries...");
 		try {
 			foundDelivery = await checkForDeliveries(page);
+			numExceptions = 0;
 			if (!foundDelivery) {
 				console.log("none found, waiting...");
+				if (alerted) {
+					sendSMS("Ack, can't get a delivery time anymore, sorry. I'll keep checking!");
+				}
+				alerted = false;
 				await delay(60 * 1000);
-			} else {
+			} else if (!alerted) {
 				console.log("Found a delivery time!");
 				sendSMS("Found a delivery time!");
+				alerted = true;
 			}
-			numExceptions = 0;
 		} catch (e) {
 			console.error("Checking failed this time, waiting...", e);
 			numExceptions += 1;
