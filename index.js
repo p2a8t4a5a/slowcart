@@ -82,6 +82,9 @@ const checkUntilFoundOrFailed = async page => {
 			if (!foundDelivery) {
 				console.log("none found, waiting...");
 				await delay(60 * 1000);
+			} else {
+				console.log("Found a delivery time!");
+				sendSMS("Found a delivery time!");
 			}
 			numExceptions = 0;
 		} catch (e) {
@@ -103,8 +106,6 @@ const checkUntilFoundOrFailed = async page => {
     await login(page);
 
 		await checkUntilFoundOrFailed(page);
-		console.log("Found a delivery time!");
-		sendSMS("Found a delivery time!");
   } catch (e) {
     console.error(e);
 		sendSMS(`Slowcart is exiting because: ${e}`);
