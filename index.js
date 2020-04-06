@@ -102,17 +102,12 @@ const checkUntilFoundOrFailed = async page => {
 
     await login(page);
 
-    try {
-			await checkUntilFoundOrFailed(page);
-			console.log("Found a delivery time!");
-			sendSMS("Found a delivery time!");
-    } catch (e) {
-      await browser.close();
-      console.error("Failed to check too many times, exiting");
-      sendSMS("Failed to check too many times, exiting");
-    }
+		await checkUntilFoundOrFailed(page);
+		console.log("Found a delivery time!");
+		sendSMS("Found a delivery time!");
   } catch (e) {
     console.error(e);
+		sendSMS(`Slowcart is exiting because: ${e}`);
     await browser.close();
   }
 })();
