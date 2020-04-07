@@ -1,6 +1,9 @@
 require("dotenv").config();
 const twilio = require("twilio");
 
+const Sentry = require('@sentry/node');
+Sentry.init({ dsn: 'https://2f2652f34dee4f4a9dc1d30e20b2ce7b@o365169.ingest.sentry.io/5191594' });
+
 const checkEnv = key => {
 	if (!process.env[key]) {
 		console.error(`${key} is required, but was not found.`);
@@ -113,8 +116,7 @@ const checkUntilFoundOrFailed = async page => {
 
 		await checkUntilFoundOrFailed(page);
   } catch (e) {
-		console.error(`Global try/catch fired:`, e);
-		sendSMS(`Slowcart is exiting because: ${e}`);
+		Sentry.captureException(e);
     await browser.close();
   }
 })();
