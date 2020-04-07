@@ -113,7 +113,7 @@ const checkUntilFoundOrFailed = async page => {
 
 		await checkUntilFoundOrFailed(page);
   } catch (e) {
-    console.error(e);
+		console.error(`Global try/catch fired:`, e);
 		sendSMS(`Slowcart is exiting because: ${e}`);
     await browser.close();
   }
